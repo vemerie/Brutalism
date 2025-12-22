@@ -8,7 +8,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
-  avatar?: string;
+  avatar: string;
   name:string;
 
 }
@@ -28,7 +28,7 @@ export interface AuthContextType {
       data: {
         user: User;
         sessionId: string;
-        accessToken: string;
+        token: string;
       };
       message: string;
     },

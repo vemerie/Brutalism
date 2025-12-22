@@ -1,4 +1,3 @@
-// src/providers/AuthProvider.tsx
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { AuthContext, type AuthContextType } from "../contexts/AuthContext";
@@ -37,10 +36,14 @@ const AuthProvider = ({ children }: Props) => {
     const storedUser = localStorage.getItem("user");
 
     if (storedToken && storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
+      // Defer updates to avoid calling setState synchronously within the effect
+      queueMicrotask(() => {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+        setIsAuthenticating(false);
+      });
+      return;
     }
-    setIsAuthenticating(false);
   }, []);
 
   useEffect(() => {
@@ -49,7 +52,11 @@ const AuthProvider = ({ children }: Props) => {
       localStorage.setItem("accessToken", token);
       localStorage.setItem("sessionId", sessionId);
       localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      // Defer the state update to avoid calling setState synchronously within the effect
+      queueMicrotask(() => {
+        setUser(user);
+        setIsAuthenticated(true);
+      });
     }
   }, [isSuccess, data]);
 

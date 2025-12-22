@@ -1,3 +1,5 @@
+import type { User } from "@/contexts/AuthContext";
+
 export interface ILoginPayload {
   email: string;
   password: string;
@@ -6,15 +8,7 @@ export interface ILoginPayload {
 export interface ILoginResponse {
   success: boolean;
   data: {
-    user: {
-      id: number;
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-      avatar: null;
-      name: string;
-    };
+    user: User;
     sessionId: string;
     token: string;
   };
