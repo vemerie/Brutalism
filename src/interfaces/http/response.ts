@@ -13,7 +13,19 @@ export interface IApiResponse<T> {
   success: boolean;
   data: T;
   message: string;
+  pagination: IPaginationMetaData;
 }
+
+export interface IPaginationMetaData  {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+
+
+
 
 export type FetchResponse<T = object> =
   | FetchResponseSuccess<T>

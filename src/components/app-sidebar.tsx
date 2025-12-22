@@ -1,5 +1,5 @@
 import React from "react";
-import { AppWindow, AppWindowMac, ArrowRight, BriefcaseBusiness, ChartArea, ChartBar, Component, File, Folder, Home, PlaneLanding, Users, ChevronDown } from "lucide-react";
+import { AppWindow, AppWindowMac, ArrowRight, BriefcaseBusiness, ChartArea, ChartBar, Component, File, Folder, Home, PlaneLanding, Users, ChevronDown, LogOut } from "lucide-react";
 
 import {
   Sidebar,
@@ -14,6 +14,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Button } from "./ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router";
 
 type SidebarSubItem = {
   title: string;
@@ -110,7 +113,12 @@ const items: SidebarNavItem[] = [
 ];
 
 export function AppSidebar() {
-  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(() => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const [openSections, setOpenSections] = React.useState<
+    Record<string, boolean>
+  >(() => {
     const initial: Record<string, boolean> = {};
     items.forEach((item) => {
       if (item.children) {
@@ -127,11 +135,17 @@ export function AppSidebar() {
     }));
   };
 
+  const confirmLogoutUser = () => {
+    logout();
+    navigate("/auth/login", { replace: true });
+  };
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-bold h-20">Brutalism</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-lg font-bold h-20">
+            Brutalism
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
@@ -201,6 +215,12 @@ export function AppSidebar() {
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
+        </div>
+        <div className="my-5 flex justify-center items-center">
+          <Button onClick={confirmLogoutUser} className="text-red-400 bg-white">
+            <LogOut />
+            Logout{" "}
+          </Button>
         </div>
       </SidebarContent>
     </Sidebar>

@@ -50,10 +50,16 @@ export interface IMailLabel {
 }
 
 export interface IEmailQueryParams extends IQueryParams {
-  startDate?: string;
-  endDate?: string;
-  status?: string;
-  category?: string;
+  view?: string;
+  labels?: string;
+  isRead?: boolean;
+  isStarred?: boolean;
+  isImportant?: boolean;
+  hasAttachments?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export type EmailList = IEmail[];

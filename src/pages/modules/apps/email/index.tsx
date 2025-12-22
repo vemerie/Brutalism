@@ -2,8 +2,6 @@
 
 import React from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Paperclip,
   Search,
   Star,
@@ -19,6 +17,7 @@ import {
   type IMailLabel,
 } from "./interfaces/email.interface";
 import { useEmailsQuery } from "./queries/email.query";
+import Pagination from "@/components/app-pagination";
 
 const mailFolders: IMailFolder[] = [
   { name: "Inbox", count: 24, active: true },
@@ -36,87 +35,6 @@ const mailLabels: IMailLabel[] = [
   { name: "Office", color: "bg-rose-500" },
 ];
 
-const seedMessages: IEmailMessage[] = [
-  {
-    id: 1,
-    sender: "Nuno Affiliate",
-    subject: "Your application to the Nuno Affiliate Network",
-    preview: "We are excited to welcome you...",
-    time: "8:27 AM",
-    starred: false,
-    unread: true,
-  },
-  {
-    id: 2,
-    sender: "Michael Adams",
-    subject: "Invitation to the company anniversary party",
-    preview: "Please confirm your attendance by Friday.",
-    time: "5:17 AM",
-    starred: true,
-    unread: true,
-  },
-  {
-    id: 3,
-    sender: "Bunnny CMS",
-    subject: "Added a few features: Dynamic database builder",
-    preview: "Take a look at the brand-new modules...",
-    time: "3:14 AM",
-    starred: false,
-    hasAttachment: true,
-  },
-  {
-    id: 4,
-    sender: "Giant SEO",
-    subject: "Ranking 1st in organic and Local Pack SERPs",
-    preview: "A few tweaks boosted your latest campaign.",
-    time: "2:15 AM",
-  },
-  {
-    id: 5,
-    sender: "Tailwind Market",
-    subject: "New sale of Dashmater - Tailwind Dashboard for $29",
-    preview: "Congrats! Someone just purchased your template.",
-    time: "1:27 AM",
-    starred: true,
-  },
-  {
-    id: 6,
-    sender: "Tailwind Market",
-    subject: "New sale of Dashmater - Tailwind Dashboard for $29",
-    preview: "Customer requested an invoice for the purchase.",
-    time: "Yesterday",
-    hasAttachment: true,
-  },
-  {
-    id: 7,
-    sender: "Tailwind Market",
-    subject: "New sale of Dashmater - Tailwind Dashboard for $29",
-    preview: "Payout scheduled for Friday.",
-    time: "Yesterday",
-  },
-  {
-    id: 8,
-    sender: "Stock Image",
-    subject: "How did you use these downloads?",
-    preview: "We'd love to see what you created.",
-    time: "Yesterday",
-    starred: true,
-  },
-  {
-    id: 9,
-    sender: "Stock Image",
-    subject: "How did you use these downloads?",
-    preview: "Share your final artwork for a feature.",
-    time: "June 12",
-  },
-  {
-    id: 10,
-    sender: "Stock Image",
-    subject: "How did you use these downloads?",
-    preview: "Quick reminder before the license expires.",
-    time: "June 11",
-  },
-];
 
 function mapEmailsToMessages(emails: EmailList): IEmailMessage[] {
   return emails.map((email: IEmail) => ({
@@ -137,22 +55,23 @@ export default function EmailInbox() {
     limit: 10,
   });
 
-  const { data: emails } = useEmailsQuery(queryParams);
+  const { data: emailData } = useEmailsQuery(queryParams);
 
-  const [messages, setMessages] = React.useState<IEmailMessage[]>(seedMessages);
+  const [messages, setMessages] = React.useState<IEmailMessage[]>([]);
   const [selectedMessages, setSelectedMessages] = React.useState<Set<number>>(
     () => new Set()
   );
 
   React.useEffect(() => {
-    if (emails && emails.length) {
-      setMessages(mapEmailsToMessages(emails));
+    if (emailData && emailData.data.length) {
+      setMessages(mapEmailsToMessages(emailData.data));
       setSelectedMessages(new Set());
+      mailFolders[0].count = emailData.pagination.total;
     }
-  }, [emails]);
+  }, [emailData]);
 
   const handleSearch = (value: string) => {
-    setQueryParams((prev) => ({ ...prev, search: value }));
+    setQueryParams((prev) => ({ ...prev, search: value, page: 1 }));
   };
 
   const toggleStar = (id: number) => {
@@ -185,6 +104,14 @@ export default function EmailInbox() {
     }
     setSelectedMessages(new Set(messages.map((message) => message.id)));
   };
+
+  const handlePageChange = (nextPage: number) => {
+    setQueryParams((prev) => ({ ...prev, page: nextPage }));
+  };
+
+  const totalItems = emailData?.pagination?.total ?? messages.length;
+  const currentPage = queryParams.page ?? 1;
+  const pageSize = queryParams.limit ?? 10;
 
   return (
     <div className="mx-auto w-full">
@@ -276,17 +203,12 @@ export default function EmailInbox() {
                   className="h-9 rounded-full border-gray-200 pl-9 text-sm"
                 />
               </div>
-              <span className="text-xs text-gray-500 whitespace-nowrap">
-                1-15 of {messages.length}
-              </span>
-              <div className="flex items-center gap-2">
-                <button className="flex h-8 w-8 items-center justify-center rounded-full border text-gray-500 transition hover:bg-gray-100">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button className="flex h-8 w-8 items-center justify-center rounded-full border text-gray-500 transition hover:bg-gray-100">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
+              <Pagination
+                total={totalItems}
+                page={currentPage}
+                limit={pageSize}
+                onPageChange={handlePageChange}
+              />
             </div>
           </div>
 
@@ -309,65 +231,69 @@ export default function EmailInbox() {
 
           <div className="divide-y overflow-x-auto">
             <div className="min-w-[520px]">
-            {messages.map((message) => {
-              const isSelected = selectedMessages.has(message.id);
-              const trimmedPreview =
-                message.preview && message.preview.length > 50
-                  ? `${message.preview.slice(0, 50)}…`
-                  : message.preview;
+              {messages.map((message) => {
+                const isSelected = selectedMessages.has(message.id);
+                const trimmedPreview =
+                  message.preview && message.preview.length > 50
+                    ? `${message.preview.slice(0, 50)}…`
+                    : message.preview;
 
-              return (
-                <div
-                  key={message.id}
-                  className={`flex items-center gap-4 py-4 text-sm ${
-                    message.unread ? "bg-lime-50" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300"
-                    checked={isSelected}
-                    onChange={() => toggleSelect(message.id)}
-                    aria-label={`Select message from ${message.sender}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleStar(message.id)}
-                    className="rounded-full p-1 text-gray-400 transition hover:text-amber-500"
-                    aria-label={
-                      message.starred ? "Remove star" : "Mark as starred"
-                    }
+                return (
+                  <div
+                    key={message.id}
+                    className={`flex items-center gap-4 py-4 text-sm ${
+                      message.unread ? "bg-lime-50" : ""
+                    }`}
                   >
-                    <Star
-                      className={`h-4 w-4 ${
-                        message.starred ? "text-amber-400" : ""
-                      }`}
-                      fill={message.starred ? "currentColor" : "none"}
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300"
+                      checked={isSelected}
+                      onChange={() => toggleSelect(message.id)}
+                      aria-label={`Select message from ${message.sender}`}
                     />
-                  </button>
-                  <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-gray-900">
-                        {message.sender}
-                      </span>
-                      {message.unread && (
-                        <span className="rounded-full bg-lime-500/20 px-2 py-0.5 text-xs font-semibold uppercase text-lime-700">
-                          New
+                    <button
+                      type="button"
+                      onClick={() => toggleStar(message.id)}
+                      className="rounded-full p-1 text-gray-400 transition hover:text-amber-500"
+                      aria-label={
+                        message.starred ? "Remove star" : "Mark as starred"
+                      }
+                    >
+                      <Star
+                        className={`h-4 w-4 ${
+                          message.starred ? "text-amber-400" : ""
+                        }`}
+                        fill={message.starred ? "currentColor" : "none"}
+                      />
+                    </button>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-gray-900">
+                          {message.sender}
                         </span>
-                      )}
+                        {message.unread && (
+                          <span className="rounded-full bg-lime-500/20 px-2 py-0.5 text-xs font-semibold uppercase text-lime-700">
+                            New
+                          </span>
+                        )}
+                      </div>
+                      <p className="truncate text-gray-700">
+                        <span className="font-medium">{message.subject}</span>
+                        <span className="text-gray-500">{` — ${
+                          trimmedPreview ?? ""
+                        }`}</span>
+                      </p>
                     </div>
-                    <p className="truncate text-gray-700">
-                      <span className="font-medium">{message.subject}</span>
-                      <span className="text-gray-500">{` — ${trimmedPreview ?? ""}`}</span>
-                    </p>
+                    {message.hasAttachment && (
+                      <Paperclip className="h-4 w-4 text-gray-400" />
+                    )}
+                    <span className="text-xs text-gray-400">
+                      {message.time}
+                    </span>
                   </div>
-                  {message.hasAttachment && (
-                    <Paperclip className="h-4 w-4 text-gray-400" />
-                  )}
-                  <span className="text-xs text-gray-400">{message.time}</span>
-                </div>
-              );
-            })}
+                );
+              })}
             </div>
           </div>
         </section>

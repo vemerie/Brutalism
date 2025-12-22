@@ -18,7 +18,7 @@ export const useEmailsQuery = (params?: IEmailQueryParams) => {
         undefined,
         params
       );
-      return response.data;
+      return response;
     },
   });
 };
