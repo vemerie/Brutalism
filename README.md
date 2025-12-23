@@ -53,12 +53,18 @@ Each module keeps its own components, interfaces, and server queries so that pag
 
 3. **Bounded Layout & Sticky Header**  
    - The main layout wraps content inside a `max-w-7xl` container with responsive padding and uses a sticky header. This approach avoids expensive layout shifts on large monitors and keeps header actions accessible without forcing full page reflows.
+   - Lazy loaded every page for better first time render.
 
 4. **Optimised Inbox Rendering**  
    - Email previews are truncated to 50 characters before rendering. This prevents oversized DOM nodes and keeps the list performant on lower-powered devices.
    - Selection and star toggling rely on `Set` operations so only the affected rows update, reducing unnecessary state churn across the message list.
 
 These optimisations, layered with Vite’s fast dev server and Tailwind’s JIT pipeline, keep the dashboard responsive while the codebase scales with new modules.
+
+## Other Considerations to improve code base
+- Unit Testing
+- Playwright testing
+- Linting, Prettier and Husky-Precommit hooks configuration
 
 ## Scripts
 
