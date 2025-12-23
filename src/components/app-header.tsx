@@ -1,10 +1,10 @@
 import { Link } from "react-router";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import type { User } from "@/contexts/AuthContext";
 import { SidebarTrigger } from "./ui/sidebar";
-import { Bell, MessageCircle, Search } from "lucide-react";
+import { Bell, Currency, MessageCircle, Search, Settings } from "lucide-react";
 
 interface Props {
   user?: User;
@@ -18,33 +18,50 @@ export function AppHeader({ user }: Props) {
         <div className="flex gap-1">
           <SidebarTrigger />
         </div>
-        <div className="relative ml-4 w-80">
-          {/* <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" /> */}
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div className="relative mr-4 w-80">
           <Input
             placeholder="Search"
-            className="pl-8 bg-gray-50 border-gray-200 py-6 rounded-full"
+            className="pl-4 bg-gray-50 border-gray-200 py-6 rounded-full"
           />
+          <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Link to={"/module/feedbacks"}>
+        <Link
+          to={"/module/message"}
+          className="border-1 border-gray-500 rounded-full"
+        >
           <Button variant="ghost" size="icon">
-        <MessageCircle size={24} />
+            <Settings size={24} />
           </Button>
         </Link>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-             <Bell />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {" "}
-            {/* <Notification /> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Link
+          to={"/module/message"}
+          className="border-1 border-gray-500 rounded-full"
+        >
+          <Button variant="ghost" size="icon">
+            <Currency size={24} />
+          </Button>
+        </Link>
+
+        <Link
+          to={"/module/message"}
+          className="border-1 border-gray-500 rounded-full"
+        >
+          <Button variant="ghost" size="icon">
+            <MessageCircle size={24} />
+          </Button>
+        </Link>
+
+        <Link
+          to={"/module/message"}
+          className="border-1 border-gray-500 rounded-full"
+        >
+          <Button variant="ghost" size="icon">
+            <Bell size={24} />
+          </Button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -69,10 +86,6 @@ export function AppHeader({ user }: Props) {
               </div>
             </div>
           </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            {/* <Logout logout={handleOpenDialog} /> */}
-          </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </header>

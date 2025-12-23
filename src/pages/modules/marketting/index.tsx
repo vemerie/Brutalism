@@ -51,9 +51,35 @@ const statCard: IStat[] = [
 ];
 
 const Marketting: React.FC = () => {
-    return (
-      <div className="p-6">
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">Marketing</h2>
+  const periods = ["7 Days", "14 Days", "1 Month"] as const;
+  const [activePeriod, setActivePeriod] = React.useState<(typeof periods)[number]>("7 Days");
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">
+          Marketing
+        </h2>
+        <div className="period">
+          <div className="inline-flex rounded-[4px] border border-black overflow-hidden text-sm font-semibold shadow-sm">
+            {periods.map((period) => {
+              const isActive = period === activePeriod;
+              return (
+                <button
+                  key={period}
+                  type="button"
+                  onClick={() => setActivePeriod(period)}
+                  className={`px-4 py-1.5 transition border-r last:border-r-0 ${
+                    isActive ? "bg-white text-green-600" : "text-gray-700 bg-gray-50"
+                  }`}
+                >
+                  {period}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
         <div className="flex flex-wrap ">
           <div
